@@ -14,44 +14,9 @@ const App: React.FC = () => {
   const [diagnosisResult, setDiagnosisResult] = useState<DiagnosisResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [apiKey, setApiKey] = useState<string | null>(null);
-  const [apiKeyError, setApiKeyError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // This is a placeholder for process.env.API_KEY.
-    // In a real build environment, process.env.API_KEY would be set.
-    // For this example, we'll simulate it being potentially missing
-    // and allow the user to input it if not found, though the prompt
-    // strictly says to use process.env.API_KEY directly.
-    // This UI for API key input is for testing convenience if process.env.API_KEY is not set.
-    // The Gemini service itself will use process.env.API_KEY as per instructions.
-    // Here we make `apiKey` stateful to control UI flow based on its presence.
-    const envApiKey = process.env.API_KEY;
-    if (envApiKey) {
-      setApiKey(envApiKey);
-    } else {
-      // If no API key, we could prompt user or show an error.
-      // For this interactive example, let's allow setting it if not present.
-      // However, the core logic in geminiService.ts will still attempt to use process.env.API_KEY.
-      // This is a slight deviation for local testing convenience.
-      console.warn("API_KEY environment variable not set. The app might not function correctly for Gemini API calls.");
-    }
-  }, []);
-  
-  const handleApiKeySubmit = (key: string) => {
-    if (key.trim()) {
-      // This is primarily for local testing; geminiService will use process.env.API_KEY
-      // Effectively, this `apiKey` state might not be directly used by geminiService
-      // if it strictly adheres to process.env.API_KEY.
-      // However, we can use this to gate the "Start Diagnosis" button.
-      Object.defineProperty(process.env, 'API_KEY', { value: key, writable: true });
-      setApiKey(key); 
-      setApiKeyError(null);
-    } else {
-      setApiKeyError("APIキーを入力してください。");
-    }
-  };
-
+  // APIキー入力関連のstateとロジックは削除されました。
+  // アプリケーションは process.env.API_KEY が環境で設定されていることを前提とします。
 
   const handleAnswerSelect = useCallback((question: QuizQuestion, answerValue: string, answerText: string) => {
     setUserAnswers(prevAnswers => [
@@ -71,6 +36,7 @@ const App: React.FC = () => {
       setIsLoading(true);
       setError(null);
       try {
+        // geminiService は内部で process.env.API_KEY を直接使用します。
         const result = await getAiToolRecommendation(userAnswers);
         setDiagnosisResult(result);
       } catch (err) {
@@ -96,40 +62,10 @@ const App: React.FC = () => {
     setIsLoading(false);
   };
   
-  if (!apiKey && !process.env.API_KEY) {
-    return (
-      <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col items-center justify-center p-4">
-        <div className="bg-slate-800 p-8 rounded-lg shadow-2xl w-full max-w-md text-center">
-          <h1 className="text-3xl font-bold mb-6 text-sky-400">APIキーが必要です</h1>
-          <p className="mb-4 text-slate-300">
-            このアプリケーションを動作させるにはGemini APIキーが必要です。
-            開発環境では `process.env.API_KEY` を設定してください。
-            テスト用に、以下にAPIキーを一時的に入力できます。
-          </p>
-          <input
-            type="password"
-            placeholder="Gemini APIキーを入力"
-            onKeyDown={(e) => { if (e.key === 'Enter') handleApiKeySubmit((e.target as HTMLInputElement).value);}}
-            className="w-full p-3 mb-4 bg-slate-700 border border-slate-600 rounded-md focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none placeholder-slate-400"
-          />
-          <button
-            onClick={() => {
-              const input = document.querySelector('input[type="password"]') as HTMLInputElement;
-              if (input) handleApiKeySubmit(input.value);
-            }}
-            className="w-full bg-sky-600 hover:bg-sky-500 text-white font-semibold py-3 px-6 rounded-md transition duration-150 ease-in-out transform hover:scale-105"
-          >
-            APIキーを送信
-          </button>
-          {apiKeyError && <p className="text-red-400 mt-3 text-sm">{apiKeyError}</p>}
-           <p className="mt-4 text-xs text-slate-400">
-            注: ここで入力されたAPIキーは、このセッションでのみ使用され、`process.env.API_KEY` を一時的に設定します。本番環境では環境変数を使用してください。
-          </p>
-        </div>
-      </div>
-    );
-  }
-
+  // APIキー入力フォームの条件分岐を削除しました。
+  // アプリは直接メインコンテンツのレンダリングに進みます。
+  // APIキーがない場合、getAiToolRecommendation がエラーをスローし、
+  // 既存のエラー処理UIが表示されます。
 
   return (
     <div className="flex flex-col min-h-screen">
