@@ -1,0 +1,5 @@
+{
+  "name": "AIツールプラン診断",
+  "description": "あなたに最適なAIツールとそのプランを診断します。10の質問に答えるだけで、ChatGPT、Gemini、Claudeの中からおすすめのツールとプラン、さらに代替案を見つけることができます。",
+  "requestFramePermissions": []
+}
